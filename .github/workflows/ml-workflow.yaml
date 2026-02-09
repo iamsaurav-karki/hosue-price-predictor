@@ -77,7 +77,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: sauravkarki/housepricepredictor-restapi: {{ github.sha  }}    
+          tags: sauravkarki/housepricepredictor-restapi:${{ github.sha }}
 
       - name: Build and push Streamlit Docker Image
         uses: docker/build-push-action@v6
@@ -85,4 +85,4 @@ jobs:
           context: streamlit_app
           file: Dockerfile
           push: true
-          tags: sauravkarki/housepricepredictor-streamlit: {{ github.sha  }}
+          tags: sauravkarki/housepricepredictor-streamlit:${{ github.sha }}
