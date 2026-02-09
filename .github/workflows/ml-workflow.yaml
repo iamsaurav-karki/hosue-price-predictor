@@ -43,6 +43,7 @@ jobs:
 
       - name: Setup MlFlow Tracking Server
         run: |
+          source .venv/bin/activate
           docker-compose -f deployment/mlflow/docker-compose.yaml up -d
           sleep 10  # Wait for the server to be fully up
 
