@@ -172,7 +172,7 @@ st.markdown(
     """
     <div style="text-align: center; color: gray; margin-top: 20px;">
         <p><strong>Built for MLOps Learning</strong></p>
-        <p>by <a href="https://www.ksaurav.com.np" target="_blank">School of Devops</a></p>
+        <p>by <a href="https://www.ksaurav.com.np" target="_blank">Saurav Karki</a></p>
     </div>
     """,
     unsafe_allow_html=True,
