@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: house-price-model
+  namespace: house-price-predictor
+  labels:
+    app: house-price-model
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: house-price-model
+  template:
+    metadata:
+      labels:
+        app: house-price-model
+    spec:
+      serviceAccountName: house-price-sa
+      containers:
+        - name: model-api
+          image: sauravkarki/housepricepredictor-restapi:12f31bfa8865074c7b82156b256a242d4ccecdca
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 60

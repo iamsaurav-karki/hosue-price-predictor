@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: streamlitui-dep
+  namespace: house-price-predictor
+  labels:
+    app: house-price-ui
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: house-price-ui
+  template:
+    metadata:
+      labels:
+        app: house-price-ui
+    spec:
+      serviceAccountName: house-price-sa
+      containers:
+        - name: streamlit-ui
+          image: sauravkarki/streamlit:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8501
+          env:
+            - name: API_URL
+              value: http://model-svc:8000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "300m"
+              memory: "256Mi"

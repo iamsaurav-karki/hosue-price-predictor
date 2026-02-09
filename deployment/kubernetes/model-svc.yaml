@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: model-svc
+  namespace: house-price-predictor
+spec:
+  type: ClusterIP
+  selector:
+    app: house-price-model
+  ports:
+    - port: 8000
+      targetPort: 8000
