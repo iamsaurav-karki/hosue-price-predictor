@@ -1,10 +1,9 @@
-name : ML workflow
+name: ML workflow
 on:
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
 
 jobs:
   workflow:
@@ -48,7 +47,6 @@ jobs:
           --backend-store-uri sqlite:///mlflow.db \
           --default-artifact-root /tmp/mlruns
 
-
       - name: Model Training and Experiment Tracking 
         run: |
           source .venv/bin/activate
@@ -65,7 +63,11 @@ jobs:
 
   docker:
     runs-on: ubuntu-latest
+    needs: workflow  
     steps:
+      - name: Checkout code  
+        uses: actions/checkout@v3
+        
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
