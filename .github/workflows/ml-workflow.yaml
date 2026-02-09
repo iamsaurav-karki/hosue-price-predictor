@@ -76,6 +76,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          file: Dockerfile
           push: true
           tags: sauravkarki/housepricepredictor-restapi:${{ github.sha }}
 
@@ -83,6 +84,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: streamlit_app
-          file: Dockerfile
+          file: streamlit_app/Dockerfile
           push: true
           tags: sauravkarki/housepricepredictor-streamlit:${{ github.sha }}
