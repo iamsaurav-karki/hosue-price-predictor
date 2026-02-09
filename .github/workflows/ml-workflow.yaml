@@ -1,4 +1,5 @@
 name: ML workflow
+
 on:
   push:
     branches: [ main ]
@@ -6,79 +7,99 @@ on:
     branches: [ main ]
 
 jobs:
-  workflow:
+  ml-pipeline:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11.14'
 
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install uv 
-          uv venv .venv  
-          source .venv/bin/activate
-          uv pip install -r requirements.txt
-      
-      - name: Run Data Processing Tests
-        run: |
-          source .venv/bin/activate
-          python src/data/run_processing.py \
+    steps:
+    # ─────────────────────────────
+    # STAGE 0: SETUP
+    # ─────────────────────────────
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11.14'
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install uv
+        uv venv .venv
+        source .venv/bin/activate
+        uv pip install -r requirements.txt
+
+    # ─────────────────────────────
+    # STAGE 1: DATA PROCESSING
+    # ─────────────────────────────
+    - name: Data Processing
+      run: |
+        source .venv/bin/activate
+        python src/data/run_processing.py \
           --input data/raw/house_data.csv \
           --output data/processed/cleaned_house_data.csv
-      
-      - name: DO Feature Engineering
-        run: |
-          source .venv/bin/activate
-          python src/features/engineer.py \
+
+    # ─────────────────────────────
+    # STAGE 2: FEATURE ENGINEERING
+    # ─────────────────────────────
+    - name: Feature Engineering
+      run: |
+        source .venv/bin/activate
+        python src/features/engineer.py \
           --input data/processed/cleaned_house_data.csv \
           --output data/processed/featured_house_data.csv \
           --preprocessor models/trained/preprocessor.pkl
 
-      - name: Setup MlFlow Tracking Server
-        run: |
-          docker run -d -p 5555:5000 --name mlflow ghcr.io/mlflow/mlflow:latest \
-          mlflow server --host 0.0.0.0 \
-          --backend-store-uri sqlite:///mlflow.db \
-          --default-artifact-root /tmp/mlruns
+    # ─────────────────────────────
+    # STAGE 3: MODEL TRAINING
+    # ─────────────────────────────
+    - name: Start MLflow Server
+      run: |
+        docker run -d \
+          -p 5555:5000 \
+          --name mlflow \
+          ghcr.io/mlflow/mlflow:latest \
+          mlflow server \
+            --host 0.0.0.0 \
+            --backend-store-uri sqlite:///mlflow.db \
+            --default-artifact-root /tmp/mlruns
 
-      - name: Model Training and Experiment Tracking 
-        run: |
-          source .venv/bin/activate
-          python src/models/train_model.py \
+    - name: Train Model
+      run: |
+        source .venv/bin/activate
+        python src/models/train_model.py \
           --config configs/model_config.yaml \
           --data data/processed/featured_house_data.csv \
           --models-dir models \
           --mlflow-tracking-uri http://localhost:5555
-      
-      - name: Cleaning up MlFlow Container
-        run: |
-          docker stop mlflow
-          docker rm mlflow
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Stop MLflow Server
+      run: |
+        docker stop mlflow
+        docker rm mlflow
 
-      - name: Build and push Restapi Docker Image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Dockerfile
-          push: true
-          tags: sauravkarki/housepricepredictor-restapi:${{ github.sha }}
+    # ─────────────────────────────
+    # STAGE 4: CONTAINERIZATION & PUSH
+    # ─────────────────────────────
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ vars.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Streamlit Docker Image
-        uses: docker/build-push-action@v6
-        with:
-          context: streamlit_app
-          file: streamlit_app/Dockerfile
-          push: true
-          tags: sauravkarki/housepricepredictor-streamlit:${{ github.sha }}
+    - name: Build & push REST API image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: Dockerfile
+        push: true
+        tags: sauravkarki/housepricepredictor-restapi:${{ github.sha }}
+
+    - name: Build & push Streamlit image
+      uses: docker/build-push-action@v6
+      with:
+        context: streamlit_app
+        file: streamlit_app/Dockerfile
+        push: true
+        tags: sauravkarki/housepricepredictor-streamlit:${{ github.sha }}
