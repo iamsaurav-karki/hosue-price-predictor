@@ -62,4 +62,27 @@ jobs:
         run: |
           docker stop mlflow
           docker rm mlflow
-      
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Restapi Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: sauravkarki/housepricepredictor-restapi: {{ github.sha  }}    
+
+      - name: Build and push Streamlit Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: streamlit_app
+          file: Dockerfile
+          push: true
+          tags: sauravkarki/housepricepredictor-streamlit: {{ github.sha  }}
