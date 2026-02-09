@@ -43,9 +43,17 @@ jobs:
 
       - name: Setup MlFlow Tracking Server
         run: |
-          source .venv/bin/activate
-          docker-compose -f deployment/mlflow/docker-compose.yaml up -d
-          sleep 10  # Wait for the server to be fully up
+              docker run -d \
+              --name mlflow \
+              -p 5555:5000 \
+              -v ${{ github.workspace }}/mlruns:/mlflow/mlruns \
+              ghcr.io/mlflow/mlflow:latest \
+              mlflow server \
+              --backend-store-uri sqlite:////mlflow/mlruns/mlflow.db \
+              --default-artifact-root /mlflow/mlruns \
+              --host 0.0.0.0 \
+              --port 5000
+               sleep 10
 
       - name: Model Training and Experiment Tracking 
         run: |
