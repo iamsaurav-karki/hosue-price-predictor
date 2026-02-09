@@ -10,7 +10,7 @@ jobs:
   workflow:
     runs-on: ubuntu-latest
 
-       services:
+    services:
       mlflow:
         image: ghcr.io/mlflow/mlflow:latest
         ports:
