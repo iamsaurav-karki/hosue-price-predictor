@@ -1,19 +1,18 @@
 name: ML workflow
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  # push:
+  #   branches: [ main ]
+  # pull_request:
+  #   branches: [ main ]
+  workflow_dispatch: {}
 
 jobs:
   ml-pipeline:
     runs-on: ubuntu-latest
 
     steps:
-    # ─────────────────────────────
-    # STAGE 0: SETUP
-    # ─────────────────────────────
+      # Set up the environment
     - name: Checkout code
       uses: actions/checkout@v3
 
