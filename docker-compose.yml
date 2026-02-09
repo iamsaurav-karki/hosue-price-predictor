@@ -1,0 +1,29 @@
+version: "3.8"
+
+networks:
+  app_net:
+    driver: bridge
+
+services:
+  flask_api:
+    image: sauravkarki/housepricepredictor:rest-v1
+    container_name: flask_api
+    expose:
+      - "8000"          # only visible inside Docker network
+    networks:
+      - app_net
+    restart: unless-stopped
+
+
+  streamlit:
+    image: sauravkarki/housepricepredictor:streamlit-v4
+    container_name: streamlit_app
+    ports:
+      - "8501:8501"     # public entry point
+    environment:
+      API_URL: http://flask_api:8000
+    depends_on:
+      - flask_api
+    networks:
+      - app_net
+    restart: unless-stopped
