@@ -3,10 +3,14 @@ kind: Service
 metadata:
   name: model-svc
   namespace: house-price-predictor
+  labels:
+    app: model-svc
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: house-price-model
   ports:
-    - port: 8000
+    - name: http
+      port: 8000
       targetPort: 8000
+      nodePort: 30031

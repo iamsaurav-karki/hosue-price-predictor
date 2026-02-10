@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: house-price-fast-api-scrap
+  namespace: house-price-predictor
+  labels:
+    release: prom
+spec:
+  selector:
+    matchLabels:
+      app: model-svc
+  namespaceSelector:
+    matchNames:
+      - house-price-predictor
+  endpoints:
+    - port: http        # ✅ Use the port name from Service
+      path: /metrics
+      interval: 30s

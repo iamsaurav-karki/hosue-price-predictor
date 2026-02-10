@@ -32,7 +32,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-Instrumentator().instrument(app).expose(app)  # Set up Prometheus metrics collection
+Instrumentator().instrument(app).expose(app)  # Set up Prometheus metrics collection , expose metrics at /metrics endpoint
 
 # Health check endpoint
 @app.get("/health", response_model=dict)
