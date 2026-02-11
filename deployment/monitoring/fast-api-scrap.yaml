@@ -13,6 +13,7 @@ spec:
     matchNames:
       - house-price-predictor
   endpoints:
-    - port: http        # ✅ Use the port name from Service
-      path: /metrics
+    - port: metrics        # ✅ Use the port name from Service
+      path: /
       interval: 30s
+      scrapeTimeout: 10s

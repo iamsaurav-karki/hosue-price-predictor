@@ -33,3 +33,9 @@ spec:
         query: |
           sum(rate(http_requests_total[1m]))
         threshold: "1000"
+
+    # 3️⃣ Custom metric-based scaling (e.g., CPU usage)
+    - type: cpu
+      metricType: Utilization
+      metadata:
+        value: "80"

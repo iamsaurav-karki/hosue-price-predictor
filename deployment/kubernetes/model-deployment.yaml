@@ -18,13 +18,13 @@ spec:
       serviceAccountName: house-price-sa
       containers:
         - name: model-api
-          image: sauravkarki/house-price-model:v3
+          image: sauravkarki/house-price-model:v4
           imagePullPolicy: Always
           ports:
             - containerPort: 8000
           resources:
             requests:
-              cpu: "200m"
+              cpu: "100m"
               memory: "256Mi"
             limits:
               cpu: "500m"
